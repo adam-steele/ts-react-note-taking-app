@@ -8,6 +8,7 @@ import { useMemo } from "react";
 import {v4 as uuidV4} from "uuid";
 import { NoteList } from "./NoteList";
 import { Note } from "./Note";
+import { EditNote } from "./EditNote";
 
 
 // defining types
@@ -66,8 +67,70 @@ function App() {
     )
   }
 
+  function onUpdateNote(id:string, {tags, ...data}:NoteData) {
+
+
+    setNotes( prevNotes => {
+      return prevNotes.map(
+        note=> {if (note.id === id){
+          return {...note, ...data, tagIds: tags.map(tag => tag.id)}
+        }else {
+          return note
+        }
+      }
+      )
+
+      // all the previous notes plus new one with NoteData but need to convert to Raw note data.
+      // so instead of storing the tag is self stores the id.
+      // return [...prevNotes, ,  ]
+    }
+    )
+  }
+
+  function onDeleteNote(id:string) {
+    setNotes( prevNotes => {
+      return prevNotes.filter(note => note.id !== id)
+    })
+  }
+
   function addTag(tag:Tag) {
     setTags(prev => [...prev, tag])
+  }
+
+  // function updateTag(id:string, label:string) {
+  //   setTags( (prevTags) => {
+  //     return prevTags.map(
+  //       (tag)=> {if (tag.id === id){
+  //         return {...tag, label: label }
+  //       }else {
+  //         return tag
+  //       }
+  //     }
+  //     )
+  //   }
+  //   )
+  // }
+
+  function updateTag(id: string, label: string) {
+    try {
+      setTags((prevTags) => {
+        return prevTags.map((tag) => {
+          if (tag.id === id) {
+            return { ...tag, label: label };
+          } else {
+            return tag;
+          }
+        });
+      });
+    } catch (error) {
+      console.error("Error updating tag:", error);
+    }
+  }
+
+  function deleteTag(id:string) {
+    setTags( prevTags => {
+      return prevTags.filter(tag => tag.id !== id)
+    })
   }
 
   return (
@@ -75,7 +138,13 @@ function App() {
     <Container className="my-4">
       <Routes>
         {/* home path */}
-        <Route path="/" element={<NoteList notes={notesWithTags} availableTags={tags}/> }/>
+        <Route path="/" element={
+          <NoteList
+            notes={notesWithTags}
+            availableTags={tags}
+            onUpdateTag ={updateTag}
+            onDeleteTag ={deleteTag}
+            /> }/>
         {/* new note path with the New Note component in it */}
         <Route path="/new" element={<NewNote
           onSubmit={onCreateNote}
@@ -85,9 +154,13 @@ function App() {
         {/* paths for displaying notes and editing them */}
         <Route path="/:id" element={<NoteLayout notes={notesWithTags}/>} >
           {/* index matches path of route it's nested in */}
-          <Route index element={<Note/>} />
+          <Route index element={<Note onDelete={onDeleteNote}/>} />
           {/* path to edit notes */}
-          <Route path="edit" element={<h1>Edit</h1>} />
+          <Route path="edit" element={
+          <EditNote
+            onSubmit={onUpdateNote}
+            onAddTag={addTag}
+            availableTags={tags} />} />
         </Route>
         {/* This route is used to redirect back to the home page in the event
         someone types anything in the url that doesn't exist. Uses */}

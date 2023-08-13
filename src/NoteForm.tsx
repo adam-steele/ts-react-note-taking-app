@@ -10,15 +10,23 @@ type NoteFormProps = {
   onSubmit: (data: NoteData) => void
   onAddTag: (tag: Tag) => void
   availableTags: Tag[]
-}
+} & Partial<NoteData> // parital says any properties of notedata can be passed in but none are required
 
-export function NoteForm({onSubmit, onAddTag, availableTags}: NoteFormProps) {
+
+export function NoteForm({
+    onSubmit,
+    onAddTag,
+    availableTags,
+    title = "",
+    markdown = "",
+    tags = []
+  }: NoteFormProps) {
   // using refs so whenever input ref gets rendered on the screen
   // the input ref variable will be set to the HTML element it is attached to in the ref attribute.
   const titleRef = useRef<HTMLInputElement>(null)
   const markdownRef = useRef<HTMLTextAreaElement>(null)
   // state for tags
-  const [selectedTags, setSelectedTags] = useState<Tag[]>([])
+  const [selectedTags, setSelectedTags] = useState<Tag[]>(tags)
   const navigate = useNavigate()
 
   function handleSubmit(e:FormEvent) {
@@ -44,7 +52,7 @@ export function NoteForm({onSubmit, onAddTag, availableTags}: NoteFormProps) {
           <Col>
             <Form.Group controlId="title">
               <Form.Label>Title</Form.Label>
-              <Form.Control ref={titleRef} required/>
+              <Form.Control ref={titleRef} required defaultValue={title}/>
             </Form.Group>
           </Col>
           <Col>
@@ -86,7 +94,7 @@ export function NoteForm({onSubmit, onAddTag, availableTags}: NoteFormProps) {
           <Form.Group controlId="markdown">
             <Form.Label>Body</Form.Label>
             {/* 15 rows for styling */}
-             <Form.Control ref={markdownRef} required as="textarea" rows={15}/>
+             <Form.Control ref={markdownRef} required as="textarea" rows={15} defaultValue={markdown}/>
           </Form.Group>
          </Row>
       </Stack>
