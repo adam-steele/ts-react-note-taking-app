@@ -2,10 +2,12 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Container } from "react-bootstrap";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { NewNote } from "./NewNote";
+import { NoteLayout } from "./NoteLayout";
 import { useLocalStorage } from "./useLocalStorage";
 import { useMemo } from "react";
 import {v4 as uuidV4} from "uuid";
 import { NoteList } from "./NoteList";
+import { Note } from "./Note";
 
 
 // defining types
@@ -81,9 +83,9 @@ function App() {
           availableTags={tags}/>} />
         {/*  */}
         {/* paths for displaying notes and editing them */}
-        <Route path="/:id" >
+        <Route path="/:id" element={<NoteLayout notes={notesWithTags}/>} >
           {/* index matches path of route it's nested in */}
-          <Route index element={<h1>Show</h1>} />
+          <Route index element={<Note/>} />
           {/* path to edit notes */}
           <Route path="edit" element={<h1>Edit</h1>} />
         </Route>
